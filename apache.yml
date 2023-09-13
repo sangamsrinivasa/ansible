@@ -1,0 +1,8 @@
+---
+  - name: Install apache
+    hosts: ec2-linux-instance
+    tasks:
+      - name: confirm Apache installation
+        yum: pkg={{item}} state= present
+        with_item:
+        - httpd

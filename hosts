@@ -1,0 +1,5 @@
+[ec2-linux-instance]
+secondary_server_ip 
+
+[ec2-linux-instance:vars]
+ansible_user=root
