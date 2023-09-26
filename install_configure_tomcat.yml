@@ -1,0 +1,65 @@
+---
+- name: Download Tomcat binary file
+  hosts: Tomcat-server
+  vars:
+    download_url: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.83/bin/apache-tomcat-8.5.83.tar.gz
+  tasks:
+    -name: Download Java JDK
+     become: yes
+     yum:
+       name: openjdk-8-pre-headless
+       update_cache: yes
+       state: latest
+    -name: create FID group
+     become: yes
+     group:
+       name: tomcat
+       state: present
+
+    -name: Create Function ID user
+     become: yes
+     user:
+       name: tomcat
+       state: present
+
+    -name: Download the Tomcat file and update permissions
+     become: yes
+     unarchive:
+       src: "{{download_url}}"
+       dest: /opt/tomcat_home
+       mode: 0755
+       remote_src: yes
+       group: tomcat
+       owner: tomcat
+
+    -name: Move binary files to tomcat_home
+     become: yes
+     become_user: tomcat
+     shell: "mv /opt/tomcat_home/apache*/* /opt/tomcat_home"
+
+    -name: Creating a service file
+     become: yes
+     copy:
+       content: |-
+         [Unit]
+         Description=Tomcat Service
+         Requires=network.target
+         After=network.target
+
+         [Service]
+         Type=forking
+         User=tomcat
+         Environment="CATALINA_PID=/opt/tomcat_home/logs/tomcat.pid"
+         Environment="CATALINA_BASE=/opt/tomcat_home"
+         Environment="CATALINA_HOME=/opt/tomcat_home"
+         Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX: +UseParallelGC"
+         
+         ExecStart=/opt/tomcat_home/bin/startup.sh
+         ExecStop=/opt/tomcat_home/bin/stop.sh
+         Restart=on-abnormal
+
+         [Install]
+         WantedBy=multi-user.target
+       dest: /etc/systemd/system/tomcat.service
+
+
