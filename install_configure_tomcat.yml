@@ -62,4 +62,23 @@
          WantedBy=multi-user.target
        dest: /etc/systemd/system/tomcat.service
 
+    - name: Restart the SystemD Process to read the updated configurations
+      become: yes
+      systemd:
+        daemon-reload: yes
+
+    - name: Start Tomcat and Enable the service
+      become: yes
+      systemd:
+        name: tomcat
+        enabled: yes
+        state: started
+
+    - name: Check if tomcat service is up
+      uri:
+        url: http://localhost:8080
+      register: result
+      until: "result.status == 200"
+      retries: 2
+      delay: 10
 
