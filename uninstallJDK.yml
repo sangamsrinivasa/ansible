@@ -1,0 +1,15 @@
+---
+ - name: Uninstall JDK
+   hosts: tomcat-server
+   find:
+     paths: /opt
+     patterns: "*jdk"
+     file_type: directory
+     recurse: yes
+   register: jdk_folder_list
+
+ - name: deletin JDK folders
+   file:
+     dest: "{{ item.path }}"
+     state: absent
+   loop: "{{ jdk_folder_list.files }}"
