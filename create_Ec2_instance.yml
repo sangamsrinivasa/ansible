@@ -1,0 +1,58 @@
+---
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    key_name: demo_aws
+    region: eu-central-1
+    image : ami-0a3ca859119c1ee3c
+    id: demo_aws_id
+    instance_type: t2.macro
+    sec_group: demo_sec_group
+
+  tasks: 
+    - name: creating EC2 instance
+      block:
+
+      - name: creating security group
+        aws.aws.ec2.security_group:
+          name: "{{ sec_group }}"
+          desciption: sec group for ansible playbook testing
+          region: "{{ region }}"
+          aws_access_key: "{{ec2_access_key}}"
+          aws_secreat_key: "{{ec2_secreate_key}}"
+          rules:
+            - proto: tcp
+              ports:
+                - 22
+              cidr_ip: 0.0.0.0/0
+              rule_desc: allow all on ssh port
+      
+      -name: Creating Key Pair for EC2 instance
+       amazon.aws.ec2.key:
+         name: "{{ key_name }}"
+         region: "{{ region }}"
+         aws_access_key: "{{ec2_access_key}}"
+         aws_secreat_key: "{{ec2_secreate_key}}"
+         key_material: "{{ item }}"
+         with_file: /path/to/my_aws.pub
+
+      -name: start instance with Public IP Address
+       amazon.aws.ec2_instance:
+         name: "demo-aws-instane-ansible"
+         key_name: "{{ key_name }}"
+         instance_type: "{{ instane_typpe }}"
+         region: "{{ region }}"
+         security_group: "{{ sec_group }}"
+         aws_access_key: "{{ec2_access_key}}"
+         aws_secreat_key: "{{ec2_secreate_key}}"
+         network: 
+           assign_public_ip: true
+         image_id: "{{ image }}"
+         tags:
+           Environment: Testing
+
+
+
