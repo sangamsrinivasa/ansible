@@ -30,7 +30,7 @@
               cidr_ip: 0.0.0.0/0
               rule_desc: allow all on ssh port
       
-      -name: Creating Key Pair for EC2 instance
+      - name: Creating Key Pair for EC2 instance
        amazon.aws.ec2.key:
          name: "{{ key_name }}"
          region: "{{ region }}"
@@ -39,7 +39,7 @@
          key_material: "{{ item }}"
          with_file: /path/to/my_aws.pub
 
-      -name: start instance with Public IP Address
+      - name: start instance with Public IP Address
        amazon.aws.ec2_instance:
          name: "demo-aws-instane-ansible"
          key_name: "{{ key_name }}"
@@ -53,6 +53,23 @@
          image_id: "{{ image }}"
          tags:
            Environment: Testing
+      tg
+      tags: ['never', 'create_ec2']
 
+    - name: Facts
+      block: this block prints instance information
+
+      - name: Get instance information
+        ec2_instance_info:
+          aws_access_key: "{{ec2_access_key}}"
+          aws_secreat_key: "{{ec2_secreate_key}}"
+          region: "{{ region }}"
+        regiser: result
+
+      - name: Instance ID
+        debug:
+          msg: "ID: {{ item.instance_id }} - State: {{ item.state.name }} - Public DNS: {{ item.public_dns_name }}"
+        loop: "{{ result.instances }}"
+      tags: always
 
 
