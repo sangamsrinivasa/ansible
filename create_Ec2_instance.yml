@@ -43,7 +43,7 @@
        amazon.aws.ec2_instance:
          name: "demo-aws-instane-ansible"
          key_name: "{{ key_name }}"
-         instance_type: "{{ instane_typpe }}"
+         instance_type: "{{ instane_type }}"
          region: "{{ region }}"
          security_group: "{{ sec_group }}"
          aws_access_key: "{{ec2_access_key}}"
@@ -53,10 +53,33 @@
          image_id: "{{ image }}"
          tags:
            Environment: Testing
-      tg
+      
       tags: ['never', 'create_ec2']
 
-    - name: Facts
+      -name: creating EBS volume
+       ec2_vol:
+         aws_access_key: "{{ec2_access_key}}"
+         aws_secreat_key: "{{ec2_secreate_key}}"
+         instance: "demo-aws-instance-ansible"
+         volumn_size: 5
+         device_name: /dev/xvdf
+         region: "{{ region }}"
+         volume_type: gp2
+       register: ec2_vol
+
+      -name: print volume information
+       debug: var=ec2_vol
+
+      -name: format the EBS volume
+       filesystem: fstype=ext4 dev=/dev/xvdf opts="-F"
+
+      -name: create the mount point
+       file: path=/mnt owner=root group=root mode=0777 state=directory
+
+      -name: mounting the volume
+       mount: name=/mnt fstype=ext4 state=mounted src=/dev/xvdf
+
+      - name: Facts
       block: this block prints instance information
 
       - name: Get instance information
