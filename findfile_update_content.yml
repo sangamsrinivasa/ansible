@@ -1,0 +1,19 @@
+---
+
+ - name: Ansible playbook to find file and add content
+   hosts: localhost
+   tasks:
+     - name: find file
+       find:
+         paths: /etc
+         patterns: test.conf
+       register: result
+
+      - debug:
+          msg: "{{ result.files|map(attribute='path')|list }}"
+
+      - lineinfile:
+          path: "{{ item }}"
+          line: "last line"
+          insertafter: EOF
+        loop: "{{ result.files|map(attribute='path')|list }}"
