@@ -1,4 +1,3 @@
-#Host file
 [ec2-linux-instance]
 secondary_server_ip 
 
