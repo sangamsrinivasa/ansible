@@ -1,0 +1,31 @@
+---
+- name: Check if file exists and has correct configuration
+  block:
+    - name: Check if file exists
+      stat:
+        path: "/path/to/file.txt"
+      register: file_stat
+
+    - name: Check file contents
+      set_fact:
+        httpd_config_present: false
+      when: file_stat.stat.exists
+
+    - name: Read file contents
+      slurp:
+        src: "/path/to/file.txt"
+      register: file_content
+      when: file_stat.stat.exists
+
+    - name: Parse file contents
+      set_fact:
+        httpd_config_present: "{{ file_content['content'] | b64decode | regex_search('Httpd_Config\\s*=\\s*true', ignorecase=True) | bool }}"
+      when: file_stat.stat.exists
+
+- name: Notify admin via email if Httpd_Config is not true
+  mail:
+    to: "all.admin@gmail.com"
+    subject: "Httpd_Config is not set correctly"
+    body: "The file /path/to/file.txt does not contain 'Httpd_Config = true' or it is set to something else."
+  when: not httpd_config_present
+

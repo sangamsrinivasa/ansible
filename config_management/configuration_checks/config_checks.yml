@@ -1,0 +1,19 @@
+---
+- name: Perform System Checks and Notify
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Perform permission checks
+      include_role:
+        name: permission_check
+
+    - name: Perform file checks
+      include_role:
+        name: file_check
+
+    - name: Notify if any checks fail
+      include_role:
+        name: email_notification
+      when: permission_failed or file_failed
+

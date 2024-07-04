@@ -1,0 +1,17 @@
+---
+- name: Check folder and file permissions
+  stat:
+    path: "{{ item.path }}"
+  loop:
+    - { path: "/path/to/folder", recommendation: "755" }
+    - { path: "/path/to/file.txt", recommendation: "644" }
+  register: permission_result
+  ignore_errors: yes
+
+- set_fact:
+    permission_failed: true
+  when: item.stat.mode != item.item.recommendation
+  with_items: "{{ permission_result.results }}"
+  loop_control:
+    label: "{{ item.item.path }}"
+

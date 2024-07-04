@@ -1,0 +1,8 @@
+---
+- name: Notify admin via email
+  mail:
+    to: "all.admin@gmail.com"
+    subject: "System check failed"
+    body: "One or more system checks failed. Please investigate."
+  when: permission_failed or file_failed
+
