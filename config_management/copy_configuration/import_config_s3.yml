@@ -1,0 +1,8 @@
+---
+- name: Deploy configuration from S3
+  hosts: all
+  become: yes
+
+  roles:
+    - s3_config
+

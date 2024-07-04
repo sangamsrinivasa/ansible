@@ -1,0 +1,5 @@
+---
+s3_bucket: "s3-bucket-name"
+s3_object: "config.tar.gz"
+s3_dest: "/etc/config"
+

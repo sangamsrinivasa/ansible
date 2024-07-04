@@ -1,0 +1,16 @@
+---
+- name: Copy configuration files from S3
+  aws_s3:
+    bucket: "{{ s3_bucket }}"
+    object: "{{ s3_object }}"
+    dest: "{{ s3_dest }}"
+    mode: get
+    overwrite: yes
+  register: s3_copy_result
+
+- name: Ensure directory exists
+  file:
+    path: "{{ s3_dest }}"
+    state: directory
+  when: s3_copy_result.changed
+
