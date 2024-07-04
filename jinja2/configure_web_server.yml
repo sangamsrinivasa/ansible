@@ -1,0 +1,59 @@
+---
+- name: Setup web server
+  hosts: webservers
+  become: yes
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install Apache
+      yum:
+        name: httpd
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Create user
+      user:
+        name: "{{ web_user }}"
+        group: "{{ web_group }}"
+        state: present
+
+    - name: Create group
+      group:
+        name: "{{ web_group }}"
+        state: present
+
+    - name: Configure virtual host
+      template:
+        src: templates/vhost.j2
+        dest: /etc/apache2/sites-available/000-default.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify:
+        - Restart Apache
+      when: ansible_os_family == "Debian"
+
+    - name: Configure virtual host
+      template:
+        src: templates/vhost.j2
+        dest: /etc/httpd/conf.d/vhost.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify:
+        - Restart Apache
+      when: ansible_os_family == "RedHat"
+
+  handlers:
+    - name: Restart Apache
+      service:
+        name: "{{ apache_service }}"
+        state: restarted
+

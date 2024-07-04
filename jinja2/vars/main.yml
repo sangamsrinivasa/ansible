@@ -1,0 +1,10 @@
+---
+web_user: "webadmin"
+web_group: "webgroup"
+server_admin: "admin@example.com"
+document_root: "/var/www/html"
+server_name: "www.example.com"
+error_log: "/var/log/apache2/error.log"
+custom_log: "/var/log/apache2/access.log"
+apache_service: "{{ 'apache2' if ansible_os_family == 'Debian' else 'httpd' }}"
+
